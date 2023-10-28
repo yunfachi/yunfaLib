@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "yunfalib",
+  "version": "${version}",
+  "name": "yunfaLib",
+  "description": "Fabric mod-library on versions 1.14-1.20 adding modules, events, configs, math, commands, etc. ",
+  "authors": [
+    "yunfachi"
+  ],
+  "contact": {
+    "website": "https://yunfachi.github.io",
+    "repo": "https://github.com/yunfachi/yunfalib"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/yunfalib/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "moe.yunfachi.yunfalib.YunfaLib"
+      }
+    ]
+  },
+  "mixins": [
+    "yunfalib.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

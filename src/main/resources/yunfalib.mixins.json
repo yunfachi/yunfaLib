@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "moe.yunfachi.yunfalib.injection",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "annotaml.MixinAnnotaml",
+    "annotaml.MixinYamlObjectMap"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

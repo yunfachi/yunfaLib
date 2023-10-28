@@ -1,0 +1,102 @@
+plugins {
+    id 'fabric-loom'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    // Fabric
+    maven { url = 'https://maven.fabricmc.net/' }
+
+    // Libraries
+    maven { url "https://repo.william278.net/releases" }
+    maven { url = 'https://jitpack.io' }
+
+    // Test ENV
+    maven { url "https://maven.terraformersmc.com/releases/" }
+    maven {
+        name = "modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
+}
+
+dependencies {
+    // Minecraft
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
+
+    // Libraries
+    compileOnly "net.william278:annotaml:${project.annotaml_version}"
+
+    // Test
+    modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
+    modLocalRuntime "com.terraformersmc:modmenu:${project.mod_menu_version}"
+    //modImplementation "maven.modrinth:sodium:${project.sodium_version}"
+}
+
+processResources {
+    inputs.property 'version', project.version
+
+    inputs.property 'minecraft_version', minecraft_version
+    inputs.property 'fabric_version', fabric_version
+    inputs.property 'loader_version', loader_version
+    inputs.property 'fabric_kotlin_version', fabric_kotlin_version
+
+    filesMatching('fabric.mod.json') {
+        expand([
+                version              : project.version,
+                minecraft_version    : minecraft_version,
+                fabric_version       : fabric_version,
+                loader_version       : loader_version,
+                fabric_kotlin_version: fabric_kotlin_version
+        ])
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release = 17
+}
+
+java {
+    withSourcesJar()
+}
+
+compileKotlin {
+    kotlinOptions {
+        suppressWarnings = true
+        jvmTarget = 17
+    }
+}
+
+shadowJar {
+    archiveClassifier.set('shadow')
+    exclude 'native-binaries/*'
+    dependencies { }
+}
+
+jar {
+    from 'LICENSE'
+}
+
+remapJar {
+    inputFile = shadowJar.archiveFile
+}
+
+tasks.register('copyZipInclude', Copy) {
+    from 'zip_include/'
+    into 'build/libs/zip'
+}
+
+build.dependsOn copyZipInclude
