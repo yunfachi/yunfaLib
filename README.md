@@ -4,6 +4,43 @@
 
 ### Config
 <details>
+<summary>Example Java: The values are stored in the class</summary>
+
+```kotlin
+class ConfigTest {
+    String truth = "this value is immediately saved to a file"
+};
+
+final Config config = new Config(
+    "config",
+    new File("./modid/config.yml"),
+    new ConfigTest()
+);
+
+config.get().truth = "this value will be written after config.save()";
+
+config.save();
+```
+</details>
+<details>
+<summary>Example Java: The values are stored in an anonymous object</summary>
+
+```kotlin
+final Config config = new Config(
+    "config",
+    new File("./modid/config.yml"),
+    new Object() {
+        String truth = "this value is immediately saved to a file"
+    }
+);
+
+config.get().truth = "this value will be written after config.save()";
+
+config.save();
+```
+</details>
+
+<details>
 <summary>Example Kotlin: The values are stored in the class</summary>
 
 ```kotlin
