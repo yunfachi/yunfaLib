@@ -4,32 +4,31 @@
 
 ### Config
 <details>
-<summary>Example Java: The values are stored in the class</summary>
+<summary>Example Java: The values are stored in the <b>inner class</b></summary>
 
 ```java
 import moe.yunfachi.yunfalib.config.Config;
 import java.io.File;
 
 public class Example {
+    private static class ConfigKeys {
+        String truth = "this value is immediately saved to a file";
+    }
+    
     public Example() {
-        class ConfigKeys { 
-            String truth = "this value is immediately saved to a file";
-        }
-
-        final Config config = new Config(
+        final Config<ConfigKeys> config = new Config<>(
                 new File("./modid/config.yml"), 
                 new ConfigKeys()
         );
-
+        
         config.get().truth = "this value will be written after config.save()";
-
         config.save();
     }
 }
 ```
 </details>
 <details>
-<summary>Example Java: The values are stored in an anonymous object</summary>
+<summary>Example Java: The values are stored in the <b>nested class</b></summary>
 
 ```java
 import moe.yunfachi.yunfalib.config.Config;
@@ -37,22 +36,24 @@ import java.io.File;
 
 public class Example {
     public Example() {
-        final Config config = new Config(
-                new File("./modid/config.yml"),
-                new Object() {
-                    String truth = "this value is immediately saved to a file";
-                }
+        final Config<ConfigKeys> config = new Config<>(
+                new File("./modid/config.yml"), 
+                new ConfigKeys()
         );
         
         config.get().truth = "this value will be written after config.save()";
-
         config.save();
     }
 }
+
+class ConfigKeys {
+    String truth = "this value is immediately saved to a file";
+}
 ```
 </details>
+<br>
 <details>
-<summary>Example Kotlin: The values are stored in the class</summary>
+<summary>Example Kotlin: The values are stored in the <b>inner class</b></summary>
 
 ```kotlin
 import moe.yunfachi.yunfalib.config.Config
@@ -68,16 +69,15 @@ class Example {
             File("./modid/config.yml"),
             ConfigKeys()
         )
-
+        
         config.get().truth = "this value will be written after config.save()"
-
         config.save()
     }
 }
 ```
 </details>
 <details>
-<summary>Example Kotlin: The values are stored in an anonymous object</summary>
+<summary>Example Kotlin: The values are stored in an <b>anonymous object</b></summary>
 
 ```kotlin
 import moe.yunfachi.yunfalib.config.Config
@@ -93,7 +93,6 @@ class Example {
         )
 
         config.get().truth = "this value will be written after config.save()"
-
         config.save()
     }
 }
