@@ -14,7 +14,7 @@ class Config<T : Any>(file: File, config: T) {
     init {
         this.file = file
         this.annotaml = Annotaml.create(file, config)
-        this.config = annotaml.get() as T
+        this.config = this.annotaml.get() as T
     }
 
     fun get(): T {
@@ -45,12 +45,22 @@ class Config<T : Any>(file: File, config: T) {
      * @throws IOException If there is a directory with the file name
      * @throws IOException If the file cannot be written
      */
-    fun save(file: File=this.file) {
+    fun save(file: File) {
         if (file.isDirectory)
             throw IOException("Unable to create \"${file.path}\" (${file.canonicalPath}) file due to existing directory")
         if (!file.canWrite())
             throw IOException("File \"${file.path}\" (${file.canonicalPath}) cannot be written")
         this.annotaml = Annotaml.create(this.config)
         this.annotaml.save(file)
+    }
+
+    /**
+     * Save the current config to a file
+     *
+     * @throws IOException If there is a directory with the file name
+     * @throws IOException If the file cannot be written
+     */
+    fun save() {
+        save(this.file)
     }
 }
