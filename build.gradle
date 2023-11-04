@@ -1,102 +1,165 @@
 plugins {
-    id 'fabric-loom'
-    id 'org.jetbrains.kotlin.jvm'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id "fabric-loom"
+    id "org.jetbrains.kotlin.jvm"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "java"
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+allprojects {
+    apply plugin: "java"
+    apply plugin: "fabric-loom"
+    apply plugin: "maven-publish"
 
-version = project.mod_version
-group = project.maven_group
+    def ENV = System.getenv()
+
+    version = project.mod_version
+    group = rootProject.maven_group
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked"
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${project.minecraft_version}"
+        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+        modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
+    }
+
+    processResources {
+        filteringCharset "UTF-8"
+
+        inputs.property "version", project.version
+        inputs.property "annotaml_version", annotaml_version
+        inputs.property "minecraft_version", minecraft_version
+        inputs.property "fabric_version", fabric_version
+        inputs.property "loader_version", loader_version
+        inputs.property "fabric_kotlin_version", fabric_kotlin_version
+
+        filesMatching("fabric.mod.json") {
+            expand([
+                    version              : project.version,
+                    annotaml_version     : annotaml_version,
+                    minecraft_version    : minecraft_version,
+                    fabric_version       : fabric_version,
+                    loader_version       : loader_version,
+                    fabric_kotlin_version: fabric_kotlin_version
+            ])
+        }
+    }
+
+    def targetJavaVersion = 17
+    tasks.withType(JavaCompile).configureEach {
+        it.options.encoding = "UTF-8"
+        if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+            it.options.release = targetJavaVersion
+        }
+    }
+
+    java {
+        def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+        if (JavaVersion.current() < javaVersion) {
+            toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+        }
+        archivesBaseName = project.archives_base_name
+        // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+        // if it is present.
+        // If you remove this line, sources will not be generated.
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+            }
+        }
+
+        repositories {
+            maven {
+                url ENV.MAVEN_URL
+                credentials {
+                    username ENV.MAVEN_USER
+                    password ENV.MAVEN_PASSWORD
+                }
+            }
+        }
+    }
+}
 
 repositories {
-    mavenCentral()
-    mavenLocal()
-    // Fabric
-    maven { url = 'https://maven.fabricmc.net/' }
-
-    // Libraries
-    maven { url "https://repo.william278.net/releases" }
     maven { url = 'https://jitpack.io' }
+    maven { url "https://repo.william278.net/releases" }
 
-    // Test ENV
     maven { url "https://maven.terraformersmc.com/releases/" }
     maven {
-        name = "modrinth"
-        url = "https://api.modrinth.com/maven"
+        url "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
     }
+}
+
+sourceSets {
+    testmod {
+        runtimeClasspath += main.runtimeClasspath
+        compileClasspath += main.compileClasspath
+    }
+}
+
+loom {
+    runs {
+        testmodClient {
+            client()
+            ideConfigGenerated project.rootProject == project
+            name = "Test"
+            source sourceSets.test
+        }
+    }
+}
+
+configurations {
+    shadowCommon
 }
 
 dependencies {
-    // Minecraft
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
+    modCompileOnly("com.terraformersmc:modmenu:${project.modmenu_version}")
+    modLocalRuntime("com.terraformersmc:modmenu:${project.modmenu_version}")
 
-    // Libraries
-    compileOnly "net.william278:annotaml:${project.annotaml_version}"
+    compileOnly("net.william278:annotaml:${project.annotaml_version}")
+    shadowCommon("net.william278:annotaml:${project.annotaml_version}")
 
-    // Test
-    modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
-    modLocalRuntime "com.terraformersmc:modmenu:${project.mod_menu_version}"
-    //modImplementation "maven.modrinth:sodium:${project.sodium_version}"
-}
-
-processResources {
-    inputs.property 'version', project.version
-
-    inputs.property 'minecraft_version', minecraft_version
-    inputs.property 'fabric_version', fabric_version
-    inputs.property 'loader_version', loader_version
-    inputs.property 'fabric_kotlin_version', fabric_kotlin_version
-
-    filesMatching('fabric.mod.json') {
-        expand([
-                version              : project.version,
-                minecraft_version    : minecraft_version,
-                fabric_version       : fabric_version,
-                loader_version       : loader_version,
-                fabric_kotlin_version: fabric_kotlin_version
-        ])
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.encoding = "UTF-8"
-    it.options.release = 17
-}
-
-java {
-    withSourcesJar()
-}
-
-compileKotlin {
-    kotlinOptions {
-        suppressWarnings = true
-        jvmTarget = 17
-    }
+    testmodImplementation(sourceSets.main.output)
+    testmodAnnotationProcessor(sourceSets.main.output)
 }
 
 shadowJar {
-    archiveClassifier.set('shadow')
-    exclude 'native-binaries/*'
-    dependencies { }
-}
+    relocate "net.william278.annotaml", "${rootProject.maven_group}.shadowed.net.william278.annotaml"
+    relocate "dev.dejvokep.boostedyaml", "${rootProject.maven_group}.shadowed.dev.dejvokep.boostedyaml"
+    relocate "org.intellij.lang", "${rootProject.maven_group}.shadowed.org.intellij.lang"
+    relocate "org.jetbrains.annotations", "${rootProject.maven_group}.shadowed.org.jetbrains.annotations"
 
-jar {
-    from 'LICENSE'
+    exclude "LICENSE"
+
+    configurations.set(0, project.configurations.shadowCommon)
+    archiveBaseName.set("${project.archivesBaseName}")
+    archiveClassifier.set("shadow")
+    archiveVersion.set("${project.version}")
 }
 
 remapJar {
-    inputFile = shadowJar.archiveFile
+    input.set(shadowJar.archiveFile)
+    dependsOn(shadowJar)
+    archiveClassifier = ""
+
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
+    }
 }
 
-tasks.register('copyZipInclude', Copy) {
-    from 'zip_include/'
-    into 'build/libs/zip'
+javadoc {
+    options.addStringOption("Xdoclint:-missing", "-quiet")
+    options.encoding = 'UTF-8'
 }
-
-build.dependsOn copyZipInclude
