@@ -5,15 +5,13 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 
-class Config<T : Any>(name: String, file: File, config: T) {
-    private val name: String
+class Config<T : Any>(file: File, config: T) {
     private val file: File
     private var config: T
 
     private var annotaml: Annotaml<Any>
 
     init {
-        this.name = name
         this.file = file
         this.annotaml = Annotaml.create(file, config)
         this.config = annotaml.get() as T

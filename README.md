@@ -6,74 +6,97 @@
 <details>
 <summary>Example Java: The values are stored in the class</summary>
 
-```kotlin
-class ConfigTest {
-    String truth = "this value is immediately saved to a file"
-};
+```java
+import moe.yunfachi.yunfalib.config.Config;
+import java.io.File;
 
-final Config config = new Config(
-    "config",
-    new File("./modid/config.yml"),
-    new ConfigTest()
-);
+public class Example {
+    public Example() {
+        class ConfigKeys { 
+            String truth = "this value is immediately saved to a file";
+        }
 
-config.get().truth = "this value will be written after config.save()";
+        final Config config = new Config(
+                new File("./modid/config.yml"), 
+                new ConfigKeys()
+        );
 
-config.save();
+        config.get().truth = "this value will be written after config.save()";
+
+        config.save();
+    }
+}
 ```
 </details>
 <details>
 <summary>Example Java: The values are stored in an anonymous object</summary>
 
-```kotlin
-final Config config = new Config(
-    "config",
-    new File("./modid/config.yml"),
-    new Object() {
-        String truth = "this value is immediately saved to a file"
+```java
+import moe.yunfachi.yunfalib.config.Config;
+import java.io.File;
+
+public class Example {
+    public Example() {
+        final Config config = new Config(
+                new File("./modid/config.yml"),
+                new Object() {
+                    String truth = "this value is immediately saved to a file";
+                }
+        );
+        
+        config.get().truth = "this value will be written after config.save()";
+
+        config.save();
     }
-);
-
-config.get().truth = "this value will be written after config.save()";
-
-config.save();
+}
 ```
 </details>
-
 <details>
 <summary>Example Kotlin: The values are stored in the class</summary>
 
 ```kotlin
-class ConfigTest {
-    var truth: String = "this value is immediately saved to a file"
+import moe.yunfachi.yunfalib.config.Config
+import java.io.File
+
+class Example {
+    init {
+        class ConfigKeys {
+            var truth = "this value is immediately saved to a file"
+        }
+
+        val config = Config(
+            File("./modid/config.yml"),
+            ConfigKeys()
+        )
+
+        config.get().truth = "this value will be written after config.save()"
+
+        config.save()
+    }
 }
-
-val config = Config(
-    "config",
-    File("./modid/config.yml"),
-    ConfigTest()
-)
-
-config.get().truth = "this value will be written after config.save()"
-
-config.save()
 ```
 </details>
 <details>
 <summary>Example Kotlin: The values are stored in an anonymous object</summary>
 
 ```kotlin
-val config = Config(
-    "config",
-    File("./modid/config.yml"),
-    object {
-        var truth: String = "this value is immediately saved to a file"
+import moe.yunfachi.yunfalib.config.Config
+import java.io.File
+
+class Example {
+    init {
+        val config = Config(
+            File("./modid/config.yml"),
+            object {
+                var truth: String = "this value is immediately saved to a file"
+            }
+        )
+
+        config.get().truth = "this value will be written after config.save()"
+
+        config.save()
     }
-)
-
-config.get().truth = "this value will be written after config.save()"
-
-config.save()
+}
 ```
 </details>
 
