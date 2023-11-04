@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "testmod",
+  "version": "${version}",
+  "name": "TestMod",
+  "description": "testmod",
+  "authors": [
+    "yunfachi"
+  ],
+  "contact": {
+    "website": "https://yunfachi.github.io",
+    "repo": "https://github.com/yunfachi/yunfalib"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/yunfalib/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "moe.yunfachi.testmod.TestMod"
+      }
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": "*",
+    "fabric": "*",
+    "minecraft": "*"
+  }
+}
