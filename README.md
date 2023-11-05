@@ -1,4 +1,22 @@
 # yunfaLib
+A library for Minecraft using the Fabric API that adds config, math, events, modules, and more.
+
+## Setup
+
+##### build.gradle
+```groovy
+repositories {
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    modImplementation "com.github.yunfachi:yunfaLib:${project.yunfalib_version}"
+}
+```
+##### gradle.properties
+```properties
+yunfalib_version=0.1.0
+```
 
 ## Features
 
